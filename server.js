@@ -1,7 +1,7 @@
 const db = require('db');
-const csv_file = require('csv');
+const csv_parser = require('csv');
 
-csv_file.parseFile();
+csv_parser.parseFile();
 
 //db.connect();
 //db.close_conn();
