@@ -1,4 +1,7 @@
-var db = require('db');
+const db = require('db');
+const csv_file = require('csv');
 
-db.connect();
-db.close_conn();
+csv_file.open_file();
+
+//db.connect();
+//db.close_conn();
