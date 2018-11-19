@@ -3,45 +3,49 @@ const path = require('path');
 const readline = require('readline');
 
 let filePath = path.join(__dirname, '../resource/athlete_events.csv');
+/**
+ * readline instance
+ */
 let rl;
 
-exports.open_file = function () {
+/**
+ * Array of csv item objects
+ */
+let csvObjects = [];
+
+/**
+ * Entry-point for parsing CSV file
+ */
+exports.parseFile = function () {
     rl = readline.createInterface({
         input: fs.createReadStream(filePath)
     });
 
     let i = 0;
     rl.on('line', function (line) {
-        // if (line.splitCSV().length !== 15) {
-        //     console.log(line);
-        // }
-        if (splitCSV(line).length !== 15) {
-            parseCSV(line);
+        if (splitCSV(line).length === 15) {
+
+        } else {
+            console.log('Not Valid line: ' + line);
         }
         i++;
     });
 };
 
-parseCSV = function (line) {
-    const regPattern = /(?:,"|^")(""|[\w\W]*?)(?=,|"$)|(?:,(?!")|^(?!"))([^,]*?)(?=$|,)/;
-
+/**
+ * Transform array into { key: value,... } object with keys
+ * @param line
+ */
+mapCsvArrayToObject = function (line) {
     console.log(line);
-
-    // console.log(line.split(regPattern).length);
-    /*const lineParams = line.split('\",\"');
-    const trimParams = lineParams.map(item => {
-        // console.log(item.replace(/\"/g, ''));
-    })*/
 };
 
-splitCSV = function(str) {
-    let matches = str.match(/(\s*"[^"]+"\s*|\s*[^,]+|,)(?=,|$)/g);
-    for (let i = 0; i < matches.length; i++) {
-        matches[i] = matches[i].trim();
-        matches[i] = matches[i].replace(/(^")/, '');
-        matches[i] = matches[i].replace(/("$)/, '');
-        if (matches[i] === ',') matches[i] = '';
-    }
-    if (str[0] === ',') matches.unshift("");
-    return matches;
+/**
+ * Parse csv line into array
+ * @param csvLine
+ * @returns {RegExpMatchArray | Promise<Response | undefined> | *}
+ */
+splitCSV = function(csvLine) {
+    const regPattern = /((?<=,\s*\")([^\"]*|([^\"]*\"\"[^""]*\"\"\"\"[^\"]*)|([^\"]*\"\"[^\"]*)|([^\"]*\"\"[^""]*\"\"[^\"]*)+)(?=\"\s*,))|((?<=,)[^,\"]*(?=,))|([^,\"]+)/g;
+    return csvLine.match(regPattern);
 };
