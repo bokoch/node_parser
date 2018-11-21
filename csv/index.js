@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const stringHelper = require('helpers');
 const propertyNames = require('csv/property-names');
 
 let filePath = path.join(__dirname, '../resource/athlete_events.csv');
@@ -24,36 +25,39 @@ let csvObjectKeys = [];
 /**
  * Entry-point for parsing CSV file
  */
-exports.parseFile = function () {
+exports.parseFile = () => {
     rl = readline.createInterface({
         input: fs.createReadStream(filePath)
     });
 
     let i = 0;
-    rl.on('line', function (line) {
+    rl.on('line', (line) => {
         if (splitCSV(line).length === 15) {
             if (i === 0) {
                 csvObjectKeys = splitCSV(line);
-            } else if (i >= 1 && i <= 10) {
+            } else if (i >= 1 /*&& i <= 10*/) {
                 // map array to object
                 const mappedCsvObject = mapCsvArrayToObject(splitCSV(line));
 
-                // put csv item object into array
+                // put csv object item into array
                 csvObjects.push(mappedCsvObject);
             }
         } else {
+            // every line must contain 15 properties
             console.log('Not Valid line: ' + line);
         }
         i++;
-    }).on('close', function () {
+    }).on('close', () => {
+        const unique = distinctObjectByKey(csvObjects, propertyNames.Team);
 
-        const unique = distinctObjectByKey(csvObjects, propertyNames.ID);
-
+        console.log(unique.map(x => stringHelper.trimDashAndNumbers(x.Team) + ': ' + x.NOC));
         console.log(unique.length);
-        console.log(csvObjects.length);
     });
+};
 
-
+getCSVObjects = () => {
+    console.log(csvObjects);
+    return csvObjects;
 };
 
 /**
@@ -62,9 +66,9 @@ exports.parseFile = function () {
  * @param key
  * @returns {*[]}
  */
-distinctObjectByKey = function(objectArray, key) {
+distinctObjectByKey = (objectArray, key) => {
     let uniqueFlags = {};
-    return objectArray.filter(function(entry) {
+    return objectArray.filter((entry) => {
         if (uniqueFlags[entry[key]]) {
             return false;
         }
@@ -77,7 +81,7 @@ distinctObjectByKey = function(objectArray, key) {
  * Transform array into { key: value,... } object with keys
  * @param csvItemArray, one line from csv file
  */
-mapCsvArrayToObject = function (csvItemArray) {
+mapCsvArrayToObject = (csvItemArray) => {
     let csvObject = {};
 
     csvObjectKeys.forEach((item, index) => {
@@ -92,7 +96,7 @@ mapCsvArrayToObject = function (csvItemArray) {
  * @param csvLine
  * @returns {RegExpMatchArray | Promise<Response | undefined> | *}
  */
-splitCSV = function(csvLine) {
+splitCSV = (csvLine) => {
     const regPattern = /((?<=,\s*\")([^\"]*|([^\"]*\"\"[^""]*\"\"\"\"[^\"]*)|([^\"]*\"\"[^\"]*)|([^\"]*\"\"[^""]*\"\"[^\"]*)+)(?=\"\s*,))|((?<=,)[^,\"]*(?=,))|([^,\"]+)/g;
     return csvLine.match(regPattern);
 };
