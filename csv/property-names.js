@@ -15,5 +15,5 @@ module.exports = {
     City: 'City',
     Sport: 'Sport',
     Event: 'Event',
-    Medal: 'Medal'
+    Medal: 'Medal',
 };

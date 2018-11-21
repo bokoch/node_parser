@@ -48,10 +48,12 @@ exports.parseFile = () => {
         }
         i++;
     }).on('close', () => {
-        const unique = distinctObjectByKey(csvObjects, propertyNames.Team);
+        const uniqueTeamsData = getTeamsData(csvObjects);
+        const uniqueSportsData = getSportsData(csvObjects);
+        const uniqueEventsData = getEventsData(csvObjects);
+        const uniqueAthletesData = getAthletesData(csvObjects);
 
-        console.log(unique.map(x => stringHelper.trimDashAndNumbers(x.Team) + ': ' + x.NOC));
-        console.log(unique.length);
+        console.log(uniqueAthletesData);
     });
 };
 
@@ -99,4 +101,64 @@ mapCsvArrayToObject = (csvItemArray) => {
 splitCSV = (csvLine) => {
     const regPattern = /((?<=,\s*\")([^\"]*|([^\"]*\"\"[^""]*\"\"\"\"[^\"]*)|([^\"]*\"\"[^\"]*)|([^\"]*\"\"[^""]*\"\"[^\"]*)+)(?=\"\s*,))|((?<=,)[^,\"]*(?=,))|([^,\"]+)/g;
     return csvLine.match(regPattern);
+};
+
+/**
+ * Return array of teams objects
+ * @param objects. Return only NOC and Team properties
+ */
+getTeamsData = (objects) => {
+    // get all unique objects by NOC 
+    return distinctObjectByKey(objects, propertyNames.NOC).map((item) => {
+        return {[propertyNames.ID]: item.ID, [propertyNames.NOC]: item.NOC, [propertyNames.Team]: stringHelper.trimDashAndNumbers(item.Team) };
+    });
+};
+
+/**
+ * Return array of sports objects
+ * @param objects. Return only NOC and Team properties
+ */
+getSportsData = (objects) => {
+    // get all unique objects by Sport property
+    return distinctObjectByKey(objects, propertyNames.Sport).map((item) => {
+        return {[propertyNames.ID]: item.ID, [propertyNames.Sport]: item.Sport};
+    });
+};
+
+/**
+ * Return array of events objects
+ * @param objects. Return only NOC and Team properties
+ */
+getEventsData = (objects) => {
+    // get all unique objects by Event property
+    return distinctObjectByKey(objects, propertyNames.Event).map((item) => {
+        return {[propertyNames.ID]: item.ID, [propertyNames.Event]: item.Event};
+    });
+};
+
+/**
+ * Return array of athletes objects
+ * @param objects. Return only NOC and Team properties
+ */
+getAthletesData = (objects) => {
+    return distinctObjectByKey(objects, propertyNames.Name).map((item) => {
+        let params = {};
+
+        if (item.Height !== 'NA') {
+            params.height = parseFloat(item.Height);
+        }
+        if (item.Weight !== 'NA') {
+            params.weight = parseFloat(item.Weight);
+        }
+
+        const paramsJSON = JSON.stringify(params);
+
+        return {
+            'ID': item.ID,
+            'full_name': stringHelper.removeCharsInBrackets(item.Name),
+            'sex': (item.Sex === 'NA') ? null : item.Sex,
+            'params': paramsJSON,
+            'team_id': '',
+        };
+    });
 };
