@@ -23,7 +23,7 @@ let csvObjectKeys = [];
 /**
  * Entry-point for parsing CSV file
  */
-exports.parseFile = async function () {
+exports.parseFile = function () {
     rl = readline.createInterface({
         input: fs.createReadStream(filePath)
     });
@@ -33,7 +33,7 @@ exports.parseFile = async function () {
         if (splitCSV(line).length === 15) {
             if (i === 0) {
                 csvObjectKeys = splitCSV(line);
-            } else if (i >= 1 && i <= 15) {
+            } else if (i >= 1 && i <= 10) {
                 // map array to object
                 const mappedCsvObject = mapCsvArrayToObject(splitCSV(line));
 
@@ -44,13 +44,32 @@ exports.parseFile = async function () {
             console.log('Not Valid line: ' + line);
         }
         i++;
+    }).on('close', function () {
+
+        const unique = distinctObjectByKey(csvObjects, 'City');
+
+        console.log(unique.length);
+        console.log(csvObjects.map(x => x.City));
     });
+
 
 };
 
-getCsvObjects = function() {
-    console.log(csvObjects);
-    return csvObjects;
+/**
+ * Get objects array unique keys
+ * @param objectArray
+ * @param key
+ * @returns {*[]}
+ */
+distinctObjectByKey = function(objectArray, key) {
+    let uniqueFlags = {};
+    return objectArray.filter(function(entry) {
+        if (uniqueFlags[entry[key]]) {
+            return false;
+        }
+        uniqueFlags[entry[key]] = true;
+        return true;
+    });
 };
 
 /**
