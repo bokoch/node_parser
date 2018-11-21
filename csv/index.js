@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const propertyNames = require('csv/property-names');
 
 let filePath = path.join(__dirname, '../resource/athlete_events.csv');
 /**
@@ -46,10 +47,10 @@ exports.parseFile = function () {
         i++;
     }).on('close', function () {
 
-        const unique = distinctObjectByKey(csvObjects, 'City');
+        const unique = distinctObjectByKey(csvObjects, propertyNames.ID);
 
         console.log(unique.length);
-        console.log(csvObjects.map(x => x.City));
+        console.log(csvObjects.length);
     });
 
 
