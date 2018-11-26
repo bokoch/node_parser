@@ -45,11 +45,11 @@ exports.parseFile = () => {
                 let mappedCsvObject;
                 if (i === 0) {
                     csvObjectKeys = splitLine;
-                } else if (i > 0 /*&& i < 2*/) {
+                } else if (i > 0) {
                     // map array to object
                     mappedCsvObject = mapCsvArrayToObject(splitLine);
 
-                    const teamId = teams.pushTeam(mappedCsvObject.Name, mappedCsvObject.NOC);
+                    const teamId = teams.pushTeam(mappedCsvObject.Team, mappedCsvObject.NOC);
                     const athletesId = athletes.pushAthlete(...formatAthleteData(mappedCsvObject, teamId));
 
                 }
@@ -59,7 +59,7 @@ exports.parseFile = () => {
             }
             i++;
         }).on('close', () => {
-            console.log(teams);
+            console.log(athletes);
             return res({});
         }).on('error', (e) => {
             return rej(e);
@@ -97,24 +97,24 @@ splitCSV = (csvLine) => {
  * @param team_id
  */
 formatAthleteData = (obj, team_id) => {
-    let params = [];
+    let params = {};
     let year_of_birth = null;
 
-    if (obj.Height !== 'N/A') {
-        params.push(obj.Height);
+    if (obj.Height !== 'NA') {
+        params['height'] = obj.Height;
     }
-    if (obj.Weight !== 'N/A') {
-        params.push(obj.Weight);
+    if (obj.Weight !== 'NA') {
+        params['weight'] = obj.Weight;
     }
 
-    if (obj.Age !== 'N/A' && obj.Year !== 'N/A') {
+    if (obj.Age !== 'NA' && obj.Year !== 'NA') {
         year_of_birth = obj.Year - obj.Age;
     }
 
     return [
         obj.ID,
         stringHelper.removeCharsInBrackets(obj.Name),
-        (obj.Sex !== 'N/A') ? Athletes.sexEnum[obj.Sex] : null,
+        (obj.Sex !== 'NA') ? Athletes.sexEnum[obj.Sex] : null,
         year_of_birth,
         JSON.stringify(params),
         team_id,

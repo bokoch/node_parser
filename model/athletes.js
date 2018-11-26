@@ -13,7 +13,7 @@ class Athletes {
      * @param team_id
      */
     pushAthlete (id, name, sex, year_of_birth, params, team_id) {
-        // if athelete with such ID not exist, add to list
+        // if athlete with such ID not exist, add to list
         if (!this.athletes[id]) {
             this.athletes[id] = {
                 id: id,
@@ -24,16 +24,7 @@ class Athletes {
                 team_id: team_id,
             };
         }
-        return this.findByID(id);
-    };
-
-    /**
-     * Get athlete by id
-     * @param id
-     * @returns {*}
-     */
-    findByID (id) {
-        return Object.keys(this.athletes).indexOf(id);
+        return this.athletes[id].id;
     };
 
     /**
