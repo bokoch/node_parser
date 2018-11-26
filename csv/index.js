@@ -5,6 +5,8 @@ const stringHelper = require('helpers');
 
 const Teams = require('model/teams');
 const Athletes = require('model/athletes');
+const Events = require('model/events');
+const Sports = require('model/sports');
 
 let filePath = path.join(__dirname, '../resource/athlete_events.csv');
 /**
@@ -24,9 +26,9 @@ let csvObjectKeys = [];
  */
 let teams = new Teams();
 let athletes = new Athletes();
-let events = {};
+let events = new Events();
+let sports = new Sports();
 let games = {};
-let sports = {};
 let results = {};
 
 /**
@@ -49,6 +51,9 @@ exports.parseFile = () => {
                     // map array to object
                     mappedCsvObject = mapCsvArrayToObject(splitLine);
 
+                    const sportId = sports.pushSport(mappedCsvObject.Sport);
+                    const eventId = events.pushEvent(mappedCsvObject.Event);
+
                     const teamId = teams.pushTeam(mappedCsvObject.Team, mappedCsvObject.NOC);
                     const athletesId = athletes.pushAthlete(...formatAthleteData(mappedCsvObject, teamId));
 
@@ -59,7 +64,7 @@ exports.parseFile = () => {
             }
             i++;
         }).on('close', () => {
-            console.log(athletes);
+            console.log(events);
             return res({});
         }).on('error', (e) => {
             return rej(e);
