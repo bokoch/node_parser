@@ -4,6 +4,8 @@ const readline = require('readline');
 const stringHelper = require('helpers');
 const propertyNames = require('csv/property-names');
 
+var Teams = require('model/teams');
+
 let filePath = path.join(__dirname, '../resource/athlete_events.csv');
 /**
  * readline instance
@@ -11,16 +13,21 @@ let filePath = path.join(__dirname, '../resource/athlete_events.csv');
 let rl;
 
 /**
- * Array of csv item objects
- * @type {Array}
- */
-let csvObjects = [];
-
-/**
  * Array of csv keys
  * @type {Array}
  */
 let csvObjectKeys = [];
+
+/**
+ * Entities objects
+ * @type {{}}
+ */
+let teams = new Teams();
+let athletes = {};
+let events = {};
+let games = {};
+let sports = {};
+let results = {};
 
 /**
  * Entry-point for parsing CSV file
@@ -34,41 +41,28 @@ exports.parseFile = () => {
         let i = 0;
         rl.on('line', (line) => {
             if (splitCSV(line).length === 15) {
+                let mappedCsvObject;
                 if (i === 0) {
                     csvObjectKeys = splitCSV(line);
-                } else if (i >= 1 /*&& i <= 10*/) {
+                } else if (i > 0 /*&& i < 50*/) {
                     // map array to object
-                    const mappedCsvObject = mapCsvArrayToObject(splitCSV(line));
+                    mappedCsvObject = mapCsvArrayToObject(splitCSV(line));
 
-                    // put csv object item into array
-                    csvObjects.push(mappedCsvObject);
+                    teams.pushTeam(mappedCsvObject.Team, mappedCsvObject.NOC)
+
                 }
             } else {
                 // every line must contain 15 properties
-                console.log('Not Valid line: ' + line);
+                throw new Error('Not Valid line: ' + line);
             }
             i++;
         }).on('close', () => {
-            return res(csvObjects);
+            console.log(teams.teams);
+            return res({});
+        }).on('error', (e) => {
+            return rej(e);
         });
     })
-};
-
-/**
- * Get objects array unique keys
- * @param objectArray
- * @param key
- * @returns {*[]}
- */
-distinctObjectByKey = (objectArray, key) => {
-    let uniqueFlags = {};
-    return objectArray.filter((entry) => {
-        if (uniqueFlags[entry[key]]) {
-            return false;
-        }
-        uniqueFlags[entry[key]] = true;
-        return true;
-    });
 };
 
 /**
