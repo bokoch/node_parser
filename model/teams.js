@@ -17,15 +17,7 @@ class Teams {
                 noc_name: noc_name
             };
         }
-    };
-
-    /**
-     * Get team by noc_name
-     * @param noc_name
-     * @returns {*}
-     */
-    findByNOC (noc_name) {
-        return this.teams[noc_name];
+        return this.teams[noc_name].id;
     };
 
     /**

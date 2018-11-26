@@ -2,9 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const stringHelper = require('helpers');
-const propertyNames = require('csv/property-names');
 
-var Teams = require('model/teams');
+const Teams = require('model/teams');
+const Athletes = require('model/athletes');
 
 let filePath = path.join(__dirname, '../resource/athlete_events.csv');
 /**
@@ -23,7 +23,7 @@ let csvObjectKeys = [];
  * @type {{}}
  */
 let teams = new Teams();
-let athletes = {};
+let athletes = new Athletes();
 let events = {};
 let games = {};
 let sports = {};
@@ -40,15 +40,17 @@ exports.parseFile = () => {
     return new Promise((res, rej) => {
         let i = 0;
         rl.on('line', (line) => {
-            if (splitCSV(line).length === 15) {
+            const splitLine = splitCSV(line);
+            if (splitLine.length === 15) {
                 let mappedCsvObject;
                 if (i === 0) {
-                    csvObjectKeys = splitCSV(line);
-                } else if (i > 0 /*&& i < 50*/) {
+                    csvObjectKeys = splitLine;
+                } else if (i > 0 /*&& i < 2*/) {
                     // map array to object
-                    mappedCsvObject = mapCsvArrayToObject(splitCSV(line));
+                    mappedCsvObject = mapCsvArrayToObject(splitLine);
 
-                    teams.pushTeam(mappedCsvObject.Team, mappedCsvObject.NOC)
+                    const teamId = teams.pushTeam(mappedCsvObject.Name, mappedCsvObject.NOC);
+                    const athletesId = athletes.pushAthlete(...formatAthleteData(mappedCsvObject, teamId));
 
                 }
             } else {
@@ -57,7 +59,7 @@ exports.parseFile = () => {
             }
             i++;
         }).on('close', () => {
-            console.log(teams.teams);
+            console.log(teams);
             return res({});
         }).on('error', (e) => {
             return rej(e);
@@ -87,4 +89,34 @@ mapCsvArrayToObject = (csvItemArray) => {
 splitCSV = (csvLine) => {
     const regPattern = /((?<=,\s*\")([^\"]*|([^\"]*\"\"[^""]*\"\"\"\"[^\"]*)|([^\"]*\"\"[^\"]*)|([^\"]*\"\"[^""]*\"\"[^\"]*)+)(?=\"\s*,))|((?<=,)[^,\"]*(?=,))|([^,\"]+)/g;
     return csvLine.match(regPattern);
+};
+
+/**
+ * Format object according to athlete fields
+ * @param obj
+ * @param team_id
+ */
+formatAthleteData = (obj, team_id) => {
+    let params = [];
+    let year_of_birth = null;
+
+    if (obj.Height !== 'N/A') {
+        params.push(obj.Height);
+    }
+    if (obj.Weight !== 'N/A') {
+        params.push(obj.Weight);
+    }
+
+    if (obj.Age !== 'N/A' && obj.Year !== 'N/A') {
+        year_of_birth = obj.Year - obj.Age;
+    }
+
+    return [
+        obj.ID,
+        stringHelper.removeCharsInBrackets(obj.Name),
+        (obj.Sex !== 'N/A') ? Athletes.sexEnum[obj.Sex] : null,
+        year_of_birth,
+        JSON.stringify(params),
+        team_id,
+    ];
 };
