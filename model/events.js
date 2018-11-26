@@ -8,7 +8,7 @@ class Events {
      * @param name
      */
     pushEvent (name) {
-        // if team with such noc_name not exist, add to list
+        // if event with such name not exist, add to list
         if (!this.events[name]) {
             this.events[name] = {
                 id: this.getLastIndex(),

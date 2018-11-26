@@ -8,7 +8,7 @@ class Sports {
      * @param name
      */
     pushSport (name) {
-        // if team with such noc_name not exist, add to list
+        // if sport with such name not exist, add to list
         if (!this.sports[name]) {
             this.sports[name] = {
                 id: this.getLastIndex(),
