@@ -8,6 +8,7 @@ const Athletes = require('model/athletes');
 const Events = require('model/events');
 const Games = require('model/games');
 const Sports = require('model/sports');
+const Results = require('model/results');
 
 let filePath = path.join(__dirname, '../resource/athlete_events.csv');
 /**
@@ -30,7 +31,7 @@ let athletes = new Athletes();
 let events = new Events();
 let sports = new Sports();
 let games = new Games();
-let results = {};
+let results = new Results();
 
 /**
  * Entry-point for parsing CSV file
@@ -44,7 +45,7 @@ exports.parseFile = () => {
         let i = 0;
         rl.on('line', (line) => {
             const splitLine = splitCSV(line);
-            if (splitLine.length === 15) {
+            if (splitLine !== null && splitLine.length === 15) {
                 let mappedCsvObject;
                 if (i === 0) {
                     csvObjectKeys = splitLine;
@@ -60,14 +61,16 @@ exports.parseFile = () => {
                     const teamId = teams.pushTeam(stringHelper.trimDashAndNumbers(mappedCsvObject.Team), mappedCsvObject.NOC);
                     const athletesId = athletes.pushAthlete(...formatAthleteData(mappedCsvObject, teamId));
 
+                    const resultId = results.pushResult(athletesId, gameId, sportId, eventId, Results.medalEnum[mappedCsvObject.Medal]);
                 }
             } else {
                 // every line must contain 15 properties
-                throw new Error('Not Valid line: ' + line);
+                console.log('Not Valid line: ' + i + ': ' + line);
+                // throw new Error('Not Valid line: ' + line);
             }
             i++;
         }).on('close', () => {
-            console.log(games.getGames());
+            console.log(results.getResults());
             return res({});
         }).on('error', (e) => {
             return rej(e);
