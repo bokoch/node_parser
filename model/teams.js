@@ -27,6 +27,10 @@ class Teams {
     getLastIndex () {
         return Object.keys(this.teams).length + 1;
     };
+
+    getTeams() {
+        return this.teams;
+    }
 }
 
 module.exports = Teams;

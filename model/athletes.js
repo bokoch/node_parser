@@ -34,6 +34,10 @@ class Athletes {
     getLastIndex () {
         return Object.keys(this.athletes).length + 1;
     };
+
+    getAthletes() {
+        return this.athletes;
+    }
 }
 
 Athletes.sexEnum = {

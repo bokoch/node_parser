@@ -67,8 +67,7 @@ exports.parseFile = () => {
             }
             i++;
         }).on('close', () => {
-            // console.log(games);
-            games.getGames();
+            console.log(games.getGames());
             return res({});
         }).on('error', (e) => {
             return rej(e);

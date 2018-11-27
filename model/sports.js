@@ -25,6 +25,10 @@ class Sports {
     getLastIndex () {
         return Object.keys(this.sports).length + 1;
     };
+
+    getSports() {
+        return this.sports;
+    }
 }
 
 module.exports = Sports;

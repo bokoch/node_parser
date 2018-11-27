@@ -25,6 +25,10 @@ class Events {
     getLastIndex () {
         return Object.keys(this.events).length + 1;
     };
+
+    getEvents() {
+        return this.events;
+    }
 }
 
 module.exports = Events;

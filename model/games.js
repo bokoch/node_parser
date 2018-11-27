@@ -41,9 +41,10 @@ class Games {
         const target = this.games;
         for (let key in target){
             if (target.hasOwnProperty(key)) {
-                console.log(key + " : " + JSON.stringify(target[key]));
+                target[key].city = target[key].city.join();
             }
         }
+        return target;
     }
 
 }
